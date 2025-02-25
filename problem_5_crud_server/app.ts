@@ -1,6 +1,5 @@
 import express from 'express'
 import cors from 'cors'
-import http from 'http';
 import multer from 'multer';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
@@ -18,13 +17,13 @@ const upload = multer();
 const logFile = fs.createWriteStream('./express.log', { flags: 'a' });
 
 const corsOptions = {
-    origin: '*',  //Your Client, do not write '*'
-    credentials: true,
+  origin: '*',  //Your Client, do not write '*'
+  credentials: true,
 };
 
 app.use(cors(corsOptions))
 app.use(express.json())
-app.use(upload.array());
+app.use(upload.array("image"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
