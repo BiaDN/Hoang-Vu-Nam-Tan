@@ -1,4 +1,10 @@
-# Project Name
+# CRUD SERVER
+
+## ⚠️ Note
+
+There are some scripts and configurations in the source code that are not yet in use. However, I believe that building a solid base source is important, so I have included them for completeness. At my current level, simply building something that "works" is not enough—I aim for a more structured and scalable approach.
+
+---
 
 ## 📌 Requirements
 
@@ -82,7 +88,7 @@ Modify the values according to your actual setup.
 
 ## 📄 License
 
-This project is licensed under the **[Your License Name]**.  
+This project is licensed under the **[ISC]**.  
 Refer to the `LICENSE` file for more details.
 
 ---
@@ -98,7 +104,7 @@ If you want to contribute, please fork the repository and submit a pull request.
 
 For any issues or questions, feel free to reach out:
 
-- **Email:** tan0811@gmail.com
+- **Email:** tannam0811@gmail.com
 - **GitHub:** [Your GitHub Profile](https://github.com/BiaDN)
 
 ---
