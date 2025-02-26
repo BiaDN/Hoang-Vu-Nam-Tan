@@ -1,0 +1,106 @@
+# Project Name
+
+## 📌 Requirements
+
+Before running this project, ensure you have the following installed:
+
+- **Node.js** version **20.18.1**
+- **npm** (comes with Node.js)
+
+## 🚀 Installation and Setup
+
+Follow these steps to set up and run the project:
+
+### 1️⃣ Install Dependencies
+
+Run the following command to install all necessary dependencies:
+
+```sh
+npm install
+```
+
+### 2️⃣ Run the Development Server
+
+Start the development server with:
+
+```sh
+npm run dev
+```
+
+This will launch the application in development mode.
+
+### 3️⃣ Run Database Migrations
+
+Apply all migration files to set up the database schema:
+
+```sh
+npm run migrate:run
+```
+
+Ensure your database is properly configured in the `.env` file before running migrations.
+
+---
+
+## 🔧 Available Commands
+
+Besides the main scripts above, you can use predefined scripts in `package.json` to perform other tasks.  
+Check `package.json` for more available commands.
+
+Some common commands include:
+
+- **Start the application in production mode:**
+  ```sh
+  npm start
+  ```
+- **Run tests:**
+  ```sh
+  npm test
+  ```
+- **Lint the code:**
+  ```sh
+  npm run lint
+  ```
+
+---
+
+## ⚙️ Environment Configuration
+
+Make sure to set up a `.env` file according to your environment needs.  
+Example `.env` file:
+
+```env
+POSTGRES_USER = postgres
+POSTGRES_PASSWORD = 024680
+POSTGRES_HOST = localhost
+POSTGRES_PORT = 5432
+POSTGRES_DB = crud_server
+```
+
+Modify the values according to your actual setup.
+
+---
+
+## 📄 License
+
+This project is licensed under the **[Your License Name]**.  
+Refer to the `LICENSE` file for more details.
+
+---
+
+## 🤝 Contribution
+
+Contributions are welcome!  
+If you want to contribute, please fork the repository and submit a pull request.
+
+---
+
+## 📞 Contact
+
+For any issues or questions, feel free to reach out:
+
+- **Email:** tan0811@gmail.com
+- **GitHub:** [Your GitHub Profile](https://github.com/BiaDN)
+
+---
+
+_✨ Happy coding! ✨_
