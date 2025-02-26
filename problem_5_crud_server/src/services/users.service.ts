@@ -1,133 +1,131 @@
+import { isEqual } from 'lodash';
 import { hash } from 'bcrypt';
+import { In, Repository } from 'typeorm';
 import { Service } from 'typedi';
-import pg from '@database';
-import { HttpException } from '@exceptions/httpException';
+import { HttpException } from '@/exceptions/httpException';
 import { User } from '@interfaces/users.interface';
+import { UserEntity } from '@/entities/users.entity';
+import { StatusCodes } from 'http-status-codes';
+import { RoleEntity } from '@/entities/roles.entity';
+import { CreateUserDto, UpdateUserDto } from '@/dtos/users.dto';
+import AppDataSource from '@/database/data-source';
+import { logger } from '@/utils/logger';
+import { LocalFileEntity } from '@/entities/localFiles.entity';
 
 @Service()
-export class UserService {
+export class UserService extends Repository<UserEntity> {
   public async findAllUser(): Promise<User[]> {
-    const { rows } = await pg.query(`
-    SELECT
-      *
-    FROM
-      users
-    `);
-    return rows;
+    const users: User[] = await UserEntity.find({
+      select: {
+        id: true,
+        email: true,
+        userName: true,
+        createdAt: true,
+        isEmailConfirmed: true,
+        isPhoneNumberConfirmed: true,
+        phoneNumber: true,
+        roles: true,
+        scores: true,
+        posts: true,
+      },
+      relations: {
+        posts: true,
+        roles: true,
+      },
+    });
+    return users;
   }
 
   public async findUserById(userId: number): Promise<User> {
-    const { rows, rowCount } = await pg.query(
-      `
-    SELECT
-      *
-    FROM
-      users
-    WHERE
-      id = $1
-    `,
-      [userId],
-    );
-    if (!rowCount) throw new HttpException(409, "User doesn't exist");
+    const findUser: User = await UserEntity.findOne({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        userName: true,
+        createdAt: true,
+        isEmailConfirmed: true,
+        isPhoneNumberConfirmed: true,
+        phoneNumber: true,
+        roles: true,
+        scores: true,
+        posts: true,
+      },
+      relations: {
+        posts: true,
+        roles: true,
+      },
+    });
+    if (!findUser) throw new HttpException(409, "User doesn't exist");
 
-    return rows[0];
+    return findUser;
   }
 
-  public async createUser(userData: User): Promise<User> {
-    const { email, password } = userData;
-
-    const { rows } = await pg.query(
-      `
-    SELECT EXISTS(
-      SELECT
-        "email"
-      FROM
-        users
-      WHERE
-        "email" = $1
-    )`,
-      [email],
-    );
-    if (rows[0].exists) throw new HttpException(409, `This email ${email} already exists`);
-
-    const hashedPassword = await hash(password, 10);
-    const { rows: createUserData } = await pg.query(
-      `
-      INSERT INTO
-        users(
-          "email",
-          "password"
-        )
-      VALUES ($1, $2)
-      RETURNING "email", "password"
-      `,
-      [email, hashedPassword],
-    );
-
-    return createUserData[0];
+  public async createUser(dto: CreateUserDto): Promise<UserEntity> {
+    const { email, password, confirmPassword, roleIds } = dto;
+    const findUser: User = await UserEntity.findOne({ where: { email } });
+    const findRole = await RoleEntity.find({ where: { id: In(roleIds) } });
+    if (!findRole.length) throw new HttpException(StatusCodes.NOT_FOUND, 'Role not found');
+    if (findUser) throw new HttpException(409, `This email ${dto.email} already exists`);
+    if (!isEqual(password, confirmPassword)) {
+      throw new HttpException(StatusCodes.BAD_REQUEST, `Confirm password not matching`);
+    }
+    const hashedPassword = await hash(dto.password, 10);
+    const createUserData = await UserEntity.create({ ...dto, password: hashedPassword, roles: findRole }).save();
+    return createUserData;
   }
 
-  public async updateUser(userId: number, userData: User): Promise<User[]> {
-    const { rows: findUser } = await pg.query(
-      `
-      SELECT EXISTS(
-        SELECT
-          "id"
-        FROM
-          users
-        WHERE
-          "id" = $1
-      )`,
-      [userId],
-    );
-    if (findUser[0].exists) throw new HttpException(409, "User doesn't exist");
+  public async updateUser(userId: number, userData: UpdateUserDto, file: Express.Multer.File | undefined): Promise<UserEntity> {
+    const { roleIds = [], password, phoneNumber, userName } = userData;
+    const findUser = await UserEntity.findOne({ where: { id: userId } });
+    let findRole: RoleEntity[] = null;
+    let newFile: LocalFileEntity = null;
+    if (!findUser) throw new HttpException(StatusCodes.NOT_FOUND, `User ${userId} not found`);
 
-    const { email, password } = userData;
-    const hashedPassword = await hash(password, 10);
-    const { rows: updateUserData } = await pg.query(
-      `
-      UPDATE
-        users
-      SET
-        "email" = $2,
-        "password" = $3
-      WHERE
-        "id" = $1
-      RETURNING "email", "password"
-    `,
-      [userId, email, hashedPassword],
-    );
+    if (roleIds.length) {
+      findRole = await RoleEntity.find({ where: { id: In(roleIds) } });
+      if (!findRole.length) throw new HttpException(StatusCodes.NOT_FOUND, 'Role not found');
+    }
 
-    return updateUserData;
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      if (file) {
+        newFile = new LocalFileEntity();
+        newFile.filename = file.originalname;
+        newFile.path = file.path;
+        newFile.mimetype = file.mimetype;
+        const fileSaved = await queryRunner.manager.save(newFile);
+        findUser.avatar = fileSaved;
+      }
+
+      findUser.phoneNumber = phoneNumber ?? findUser.phoneNumber;
+      findUser.userName = userName ?? findUser.userName;
+      if (password) {
+        const hashedPassword = await hash(password, 10);
+        findUser.password = hashedPassword;
+      }
+
+      const userSaved = await queryRunner.manager.save(findUser);
+
+      await queryRunner.commitTransaction();
+
+      return userSaved;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      logger.error('Transaction failed:', error);
+      throw new HttpException(StatusCodes.BAD_REQUEST, 'Transaction failed');
+    } finally {
+      await queryRunner.release();
+    }
   }
 
-  public async deleteUser(userId: number): Promise<User[]> {
-    const { rows: findUser } = await pg.query(
-      `
-      SELECT EXISTS(
-        SELECT
-          "id"
-        FROM
-          users
-        WHERE
-          "id" = $1
-      )`,
-      [userId],
-    );
-    if (findUser[0].exists) throw new HttpException(409, "User doesn't exist");
+  public async deleteUser(userId: number): Promise<User> {
+    const findUser: User = await UserEntity.findOne({ where: { id: userId } });
+    if (!findUser) throw new HttpException(409, "User doesn't exist");
 
-    const { rows: deleteUserData } = await pg.query(
-      `
-      DELETE
-      FROM
-        users
-      WHERE
-        id = $1
-      RETURNING "email", "password"
-      `,
-      [userId],
-    );
-
-    return deleteUserData;
+    await UserEntity.delete({ id: userId });
+    return findUser;
   }
 }

@@ -19,10 +19,7 @@ describe('Testing Auth', () => {
       const authRoute = new AuthRoute();
       const app = new App([authRoute]);
 
-      return await request(app.getServer())
-      .post('/signup')
-      .send(userData)
-      .expect(201);
+      return await request(app.getServer()).post('/signup').send(userData).expect(201);
     });
   });
 

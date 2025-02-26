@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import { IsEmail, IsString, IsNotEmpty, MinLength, MaxLength, IsPhoneNumber, IsNotEmptyObject, IsOptional } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -6,15 +6,43 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(9)
+  @MinLength(1)
   @MaxLength(32)
   public password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public userName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(32)
+  public confirmPassword: string;
+
+  @IsNotEmpty()
+  @IsPhoneNumber('VN')
+  public phoneNumber: string;
+
+  @IsNotEmpty()
+  public roleIds: number[];
 }
 
 export class UpdateUserDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(9)
   @MaxLength(32)
   public password: string;
+
+  @IsString()
+  @IsOptional()
+  public userName: string;
+
+  @IsOptional()
+  @IsPhoneNumber('VN')
+  public phoneNumber: string;
+
+  @IsOptional()
+  public roleIds: number[];
 }

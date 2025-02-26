@@ -12,17 +12,21 @@ import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
 import { Routes } from '@interfaces/routes.interface';
 import { ErrorMiddleware } from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import AppDataSource from './database/data-source';
 
 export class App {
   public app: express.Application;
   public env: string;
   public port: string | number;
+  public prefix: string;
 
   constructor(routes: Routes[]) {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
+    this.prefix = '/api/v1';
 
+    this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -42,6 +46,15 @@ export class App {
     return this.app;
   }
 
+  private async connectToDatabase() {
+    try {
+      await AppDataSource.initialize();
+      console.log('Data Source has been initialized!');
+    } catch (err) {
+      console.error('Error during Data Source initialization:', err);
+    }
+  }
+
   private initializeMiddlewares() {
     this.app.use(morgan(LOG_FORMAT, { stream }));
     this.app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
@@ -55,7 +68,7 @@ export class App {
 
   private initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {
-      this.app.use('/', route.router);
+      this.app.use(this.prefix, route.router);
     });
   }
 

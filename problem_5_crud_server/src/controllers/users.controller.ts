@@ -2,6 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
 import { User } from '@interfaces/users.interface';
 import { UserService } from '@services/users.service';
+import { handleSuccessResponse } from '@/utils/handleResponse';
+import { CreateUserDto, UpdateUserDto } from '@/dtos/users.dto';
+import { UserEntity } from '@/entities/users.entity';
 
 export class UserController {
   public user = Container.get(UserService);
@@ -9,8 +12,7 @@ export class UserController {
   public getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const findAllUsersData: User[] = await this.user.findAllUser();
-
-      res.status(200).json({ data: findAllUsersData, message: 'findAll' });
+      res.status(200).json(handleSuccessResponse(findAllUsersData, 'findAll', 200));
     } catch (error) {
       next(error);
     }
@@ -21,7 +23,7 @@ export class UserController {
       const userId = Number(req.params.id);
       const findOneUserData: User = await this.user.findUserById(userId);
 
-      res.status(200).json({ data: findOneUserData, message: 'findOne' });
+      res.status(200).json(handleSuccessResponse(findOneUserData, 'findOne', 200));
     } catch (error) {
       next(error);
     }
@@ -29,10 +31,10 @@ export class UserController {
 
   public createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userData: User = req.body;
-      const createUserData: User = await this.user.createUser(userData);
+      const userData: CreateUserDto = req.body;
+      const createUserData: UserEntity = await this.user.createUser(userData);
 
-      res.status(201).json({ data: createUserData, message: 'created' });
+      res.status(201).json(handleSuccessResponse(createUserData, 'created', 201));
     } catch (error) {
       next(error);
     }
@@ -41,10 +43,11 @@ export class UserController {
   public updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = Number(req.params.id);
-      const userData: User = req.body;
-      const updateUserData: User[] = await this.user.updateUser(userId, userData);
+      const userData: UpdateUserDto = req.body;
+      const file = req.file;
+      const updateUserData: UserEntity = await this.user.updateUser(userId, userData, file);
 
-      res.status(200).json({ data: updateUserData, message: 'updated' });
+      res.status(200).json(handleSuccessResponse(updateUserData, 'updated', 200));
     } catch (error) {
       next(error);
     }
@@ -53,9 +56,9 @@ export class UserController {
   public deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = Number(req.params.id);
-      const deleteUserData: User[] = await this.user.deleteUser(userId);
+      const deleteUserData: User = await this.user.deleteUser(userId);
 
-      res.status(200).json({ data: deleteUserData, message: 'deleted' });
+      res.status(200).json(handleSuccessResponse(deleteUserData, 'deleted', 200));
     } catch (error) {
       next(error);
     }
