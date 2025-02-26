@@ -1,12 +1,9 @@
 import { NextFunction, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { SECRET_KEY } from '@config';
-import pg from '@database';
 import { HttpException } from '@exceptions/httpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { StatusCodes } from 'http-status-codes';
-import { User } from '@/interfaces/users.interface';
-import { logger } from '@/utils/logger';
 import { UserEntity } from '@/entities/users.entity';
 import { RoleType } from '@/interfaces/roles.interface';
 

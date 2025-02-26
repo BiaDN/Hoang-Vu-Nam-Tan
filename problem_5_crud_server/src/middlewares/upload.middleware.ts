@@ -1,10 +1,11 @@
 import { Request } from 'express';
 import multer from 'multer';
+import { UPLOAD_DIR } from '@/constants';
 
 // Set storage engine
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Save images in 'uploads' folder
+    cb(null, UPLOAD_DIR); // Save images in 'uploads' folder
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);

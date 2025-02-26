@@ -13,6 +13,8 @@ import { Routes } from '@interfaces/routes.interface';
 import { ErrorMiddleware } from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import AppDataSource from './database/data-source';
+import fs from 'fs';
+import { UPLOAD_DIR } from './constants';
 
 export class App {
   public app: express.Application;
@@ -56,6 +58,10 @@ export class App {
   }
 
   private initializeMiddlewares() {
+    if (!fs.existsSync(UPLOAD_DIR)) {
+      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    }
+
     this.app.use(morgan(LOG_FORMAT, { stream }));
     this.app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
     this.app.use(hpp());
@@ -64,6 +70,7 @@ export class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    this.app.use('/uploads', express.static('uploads'));
   }
 
   private initializeRoutes(routes: Routes[]) {

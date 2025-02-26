@@ -1,3 +1,4 @@
+import { UserEntity } from '@/entities/users.entity';
 import { IsEmail, IsString, IsNotEmpty, MinLength, MaxLength, IsPhoneNumber, IsNotEmptyObject, IsOptional } from 'class-validator';
 
 export class CreateUserDto {
@@ -45,4 +46,20 @@ export class UpdateUserDto {
 
   @IsOptional()
   public roleIds: number[];
+}
+
+export class UserRequestDTO {
+  public limit: number;
+  public page: number;
+}
+
+export class UserResponseDTO {
+  public users: UserEntity[];
+  public pagination: {
+    totalCount: number;
+    currentPage: number;
+    totalPages: number;
+    nextPage: number;
+    prevPage: number;
+  };
 }

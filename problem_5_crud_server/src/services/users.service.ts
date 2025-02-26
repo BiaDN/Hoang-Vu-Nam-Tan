@@ -7,15 +7,18 @@ import { User } from '@interfaces/users.interface';
 import { UserEntity } from '@/entities/users.entity';
 import { StatusCodes } from 'http-status-codes';
 import { RoleEntity } from '@/entities/roles.entity';
-import { CreateUserDto, UpdateUserDto } from '@/dtos/users.dto';
+import { CreateUserDto, UpdateUserDto, UserRequestDTO, UserResponseDTO } from '@/dtos/users.dto';
 import AppDataSource from '@/database/data-source';
 import { logger } from '@/utils/logger';
 import { LocalFileEntity } from '@/entities/localFiles.entity';
 
 @Service()
 export class UserService extends Repository<UserEntity> {
-  public async findAllUser(): Promise<User[]> {
-    const users: User[] = await UserEntity.find({
+  public async findAllUser(query: UserRequestDTO): Promise<UserResponseDTO> {
+    const limit: number = query.limit || 10;
+    const page = query.page || 1;
+
+    const [result, total] = await UserEntity.findAndCount({
       select: {
         id: true,
         email: true,
@@ -32,12 +35,26 @@ export class UserService extends Repository<UserEntity> {
         posts: true,
         roles: true,
       },
+      take: limit,
+      skip: (page - 1) * limit,
     });
-    return users;
+
+    const totalPages = Math.ceil(total / limit);
+    return {
+      users: result,
+      pagination: {
+        totalCount: total,
+        currentPage: page,
+        totalPages,
+        nextPage: totalPages > page ? Number(page) + 1 : null,
+        prevPage: page > 1 ? Number(page) - 1 : null,
+      },
+    };
   }
 
-  public async findUserById(userId: number): Promise<User> {
-    const findUser: User = await UserEntity.findOne({
+  public async findUserById(userId: number, prefixPath: string): Promise<User> {
+    let urlImage = null;
+    const findUser = await UserEntity.findOne({
       where: { id: userId },
       select: {
         id: true,
@@ -50,15 +67,23 @@ export class UserService extends Repository<UserEntity> {
         roles: true,
         scores: true,
         posts: true,
+        avatar: {
+          id: true,
+        },
       },
       relations: {
         posts: true,
         roles: true,
+        avatar: true,
       },
     });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
-
-    return findUser;
+    const imageId = findUser.avatar?.id;
+    if (imageId) {
+      const file = await LocalFileEntity.findOne({ where: { id: imageId } });
+      urlImage = `${prefixPath}/${file.path}`;
+    }
+    return { ...findUser, url: urlImage };
   }
 
   public async createUser(dto: CreateUserDto): Promise<UserEntity> {
@@ -81,10 +106,10 @@ export class UserService extends Repository<UserEntity> {
     let findRole: RoleEntity[] = null;
     let newFile: LocalFileEntity = null;
     if (!findUser) throw new HttpException(StatusCodes.NOT_FOUND, `User ${userId} not found`);
-
     if (roleIds.length) {
       findRole = await RoleEntity.find({ where: { id: In(roleIds) } });
       if (!findRole.length) throw new HttpException(StatusCodes.NOT_FOUND, 'Role not found');
+      findUser.roles = findRole;
     }
 
     const queryRunner = AppDataSource.createQueryRunner();

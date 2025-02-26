@@ -3,7 +3,7 @@ import { Container } from 'typedi';
 import { User } from '@interfaces/users.interface';
 import { UserService } from '@services/users.service';
 import { handleSuccessResponse } from '@/utils/handleResponse';
-import { CreateUserDto, UpdateUserDto } from '@/dtos/users.dto';
+import { CreateUserDto, UpdateUserDto, UserRequestDTO } from '@/dtos/users.dto';
 import { UserEntity } from '@/entities/users.entity';
 
 export class UserController {
@@ -11,7 +11,7 @@ export class UserController {
 
   public getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const findAllUsersData: User[] = await this.user.findAllUser();
+      const findAllUsersData = await this.user.findAllUser(req.query as any);
       res.status(200).json(handleSuccessResponse(findAllUsersData, 'findAll', 200));
     } catch (error) {
       next(error);
@@ -21,7 +21,8 @@ export class UserController {
   public getUserById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = Number(req.params.id);
-      const findOneUserData: User = await this.user.findUserById(userId);
+      const prefixPath = `${req.protocol}:/${req.get('host')}`;
+      const findOneUserData: User = await this.user.findUserById(userId, prefixPath);
 
       res.status(200).json(handleSuccessResponse(findOneUserData, 'findOne', 200));
     } catch (error) {
