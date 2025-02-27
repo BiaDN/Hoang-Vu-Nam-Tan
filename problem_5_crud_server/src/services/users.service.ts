@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash';
 import { hash } from 'bcrypt';
-import { Between, ILike, In, LessThanOrEqual, Like, MoreThanOrEqual, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Service } from 'typedi';
 import { HttpException } from '@/exceptions/httpException';
 import { IRequestUserGetList, User } from '@interfaces/users.interface';
@@ -23,7 +23,7 @@ export class UserService extends Repository<UserEntity> {
       queryBuilder.andWhere('user.userName ILIKE :userName', { userName: `%${query.userName}%` });
     }
     if (query.email) {
-      queryBuilder.andWhere('user.email ILIKE :email', { email: `%${query.email}%` });
+      queryBuilder.andWhere('user.email = :email', { email: `${query.email}` });
     }
     if (query.roleId) {
       queryBuilder
@@ -106,7 +106,7 @@ export class UserService extends Repository<UserEntity> {
         avatar: true,
       },
     });
-    if (!findUser) throw new HttpException(409, "User doesn't exist");
+    if (!findUser) throw new HttpException(StatusCodes.NOT_FOUND, "User doesn't exist");
     const imageId = findUser.avatar?.id;
     if (imageId) {
       const file = await LocalFileEntity.findOne({ where: { id: imageId } });

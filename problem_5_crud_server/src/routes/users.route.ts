@@ -3,7 +3,7 @@ import { UserController } from '@controllers/users.controller';
 import { CreateUserDto, UpdateUserDto } from '@dtos/users.dto';
 import { Routes } from '@interfaces/routes.interface';
 import { ValidationMiddleware } from '@middlewares/validation.middleware';
-import { AdminMiddleware, AuthMiddleware } from '@/middlewares/auth.middleware';
+import { AdminMiddleware } from '@/middlewares/auth.middleware';
 import upload from '@/middlewares/upload.middleware';
 
 export class UserRoute implements Routes {

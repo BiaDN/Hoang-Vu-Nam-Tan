@@ -82,11 +82,23 @@ export class App {
   private initializeSwagger() {
     const options = {
       swaggerDefinition: {
+        openapi: '3.0.0',
         info: {
           title: 'REST API',
-          version: '1.0.0',
+          version: '2.0.0',
           description: 'Documentation for CRUD SERVER',
+          host: 'your-api-host.com',
         },
+        servers: [
+          {
+            url: 'http://localhost:3000/api/v1',
+            description: 'Local server',
+          },
+          {
+            url: 'https://some.other.url/api/v1',
+            description: 'Dev server',
+          },
+        ],
       },
       apis: ['swagger.yaml'],
     };

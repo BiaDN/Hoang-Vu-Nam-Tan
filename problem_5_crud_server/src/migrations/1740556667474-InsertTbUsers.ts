@@ -8,13 +8,14 @@ export class InsertTbUsers1740556667474 implements MigrationInterface {
 
     await queryRunner.query(`
             INSERT INTO tb_user (id, user_name, email, password, phone_number) VALUES 
-            ('1', 'admin', 'admin@example.com', '${hashedPassword}', '0362082864');
+            ('1', 'admin', 'admin@gmail.com', '${hashedPassword}', '0362082864'),
+            ('2', 'user', 'user@gmail.com', '${hashedPassword}', '0362082864');
         `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            DELETE FROM tb_user WHERE id = '1';
+            DELETE FROM tb_user WHERE id IN (1 ,2);
         `);
   }
 }

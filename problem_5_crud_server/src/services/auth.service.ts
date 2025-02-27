@@ -2,7 +2,7 @@ import { compare, hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
-import { SECRET_KEY } from '@config';
+import { EXPIRES_IN, SECRET_KEY } from '@config';
 import { HttpException } from '@/exceptions/httpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
@@ -15,7 +15,7 @@ import { RoleEntity } from '@/entities/roles.entity';
 const createToken = (user: User): TokenData => {
   const dataStoredInToken: DataStoredInToken = { id: user.id };
   const secretKey: string = SECRET_KEY;
-  const expiresIn: number = 60 * 60;
+  const expiresIn: number = Number(EXPIRES_IN) ?? 3600;
 
   return { expiresIn, token: sign(dataStoredInToken, secretKey, { expiresIn }) };
 };

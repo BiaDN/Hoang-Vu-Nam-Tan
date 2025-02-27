@@ -1,5 +1,5 @@
 import { Role, RoleType } from '@/interfaces/roles.interface';
-import { BaseEntity, Entity, Column, CreateDateColumn, UpdateDateColumn, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Entity, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, PrimaryColumn } from 'typeorm';
 import { UserEntity } from './users.entity';
 
 @Entity({ name: 'tb_role' })

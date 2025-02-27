@@ -71,8 +71,10 @@ Some common commands include:
 
 ## ⚙️ Environment Configuration
 
-Make sure to set up a `.env` file according to your environment needs.  
-Example `.env` file:
+Copy `.env.development.example` => `.env.development`
+
+Make sure to set up a `.env.development` file according to your environment needs.  
+Example `.env.development` file:
 
 ```env
 POSTGRES_USER = postgres
@@ -80,6 +82,7 @@ POSTGRES_PASSWORD = 024680
 POSTGRES_HOST = localhost
 POSTGRES_PORT = 5432
 POSTGRES_DB = crud_server
+EXPIRES_IN=3600
 ```
 
 Modify the values according to your actual setup.
