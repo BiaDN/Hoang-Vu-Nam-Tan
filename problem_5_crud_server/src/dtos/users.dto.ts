@@ -1,5 +1,5 @@
 import { UserEntity } from '@/entities/users.entity';
-import { IsEmail, IsString, IsNotEmpty, MinLength, MaxLength, IsPhoneNumber, IsNotEmptyObject, IsOptional } from 'class-validator';
+import { IsEmail, IsString, IsNotEmpty, MinLength, MaxLength, IsPhoneNumber, IsOptional, Min } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -46,13 +46,15 @@ export class UpdateUserDto {
 
   @IsOptional()
   public roleIds: number[];
+
+  @IsOptional()
+  public score: number;
 }
 
 export class UserRequestDTO {
   public limit: number;
   public page: number;
 }
-
 export class UserResponseDTO {
   public users: UserEntity[];
   public pagination: {

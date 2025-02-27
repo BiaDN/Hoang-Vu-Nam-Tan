@@ -43,7 +43,7 @@ Apply all migration files to set up the database schema:
 npm run migrate:run
 ```
 
-Ensure your database is properly configured in the `.env` file before running migrations.
+Ensure your database is properly configured in the `.env.development.local` file before running migrations.
 
 ---
 
@@ -83,6 +83,20 @@ POSTGRES_DB = crud_server
 ```
 
 Modify the values according to your actual setup.
+
+---
+
+## 📄 API Documentation
+
+### 🔹 Postman Collection
+You can access the API documentation via Postman using the following link:
+
+📌 **[Postman Documentation](https://documenter.getpostman.com/view/18992337/2sAYdfqrMi)**
+
+### 🔹 Swagger Documentation
+If you prefer using Swagger, you can access the API documentation when the server is running at:
+
+📌 **[Swagger UI](http://localhost:3000/api-docs)** _(Replace `3000` with your actual port if different)_
 
 ---
 

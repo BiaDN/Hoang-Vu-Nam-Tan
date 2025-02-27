@@ -26,6 +26,7 @@ export class UserRoute implements Routes {
       ValidationMiddleware(UpdateUserDto, true),
       this.user.updateUser,
     );
-    this.router.delete(`${this.path}/:id(\\d+)`, this.user.deleteUser);
+    this.router.delete(`${this.path}/:id(\\d+)`, AdminMiddleware(false), this.user.deleteUser);
+    this.router.post(`${this.path}/delete/:id(\\d+)`, AdminMiddleware(false), this.user.softDeleteUser);
   }
 }

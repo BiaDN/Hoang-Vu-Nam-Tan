@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { User } from '@interfaces/users.interface';
+import { IRequestUserGetList, User } from '@interfaces/users.interface';
 import { UserService } from '@services/users.service';
 import { handleSuccessResponse } from '@/utils/handleResponse';
-import { CreateUserDto, UpdateUserDto, UserRequestDTO } from '@/dtos/users.dto';
+import { CreateUserDto, UpdateUserDto } from '@/dtos/users.dto';
 import { UserEntity } from '@/entities/users.entity';
 
 export class UserController {
@@ -11,7 +11,7 @@ export class UserController {
 
   public getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const findAllUsersData = await this.user.findAllUser(req.query as any);
+      const findAllUsersData = await this.user.findAllUser(req.query as IRequestUserGetList);
       res.status(200).json(handleSuccessResponse(findAllUsersData, 'findAll', 200));
     } catch (error) {
       next(error);
@@ -60,6 +60,17 @@ export class UserController {
       const deleteUserData: User = await this.user.deleteUser(userId);
 
       res.status(200).json(handleSuccessResponse(deleteUserData, 'deleted', 200));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public softDeleteUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = Number(req.params.id);
+      const deleteUserData: User = await this.user.softDeleteUser(userId);
+
+      res.status(200).json(handleSuccessResponse(deleteUserData, 'softDeleted', 200));
     } catch (error) {
       next(error);
     }

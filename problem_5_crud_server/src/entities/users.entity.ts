@@ -36,7 +36,7 @@ export class UserEntity extends BaseEntity implements User {
   @IsNotEmpty()
   password: string;
 
-  @Column({ name: 'score', default: 0 })
+  @Column({ name: 'score', default: 0, type: 'integer' })
   scores: number;
 
   @Column({ name: 'phone_number' })
@@ -55,7 +55,10 @@ export class UserEntity extends BaseEntity implements User {
   @Column({ default: false, name: 'is_phone_number_confirmed' })
   public isPhoneNumberConfirmed: boolean;
 
-  @ManyToMany(() => RoleEntity, (role: RoleEntity) => role.users)
+  @Column({ default: false, name: 'delete_yn' })
+  public deleteYn: boolean;
+
+  @ManyToMany(() => RoleEntity, (role: RoleEntity) => role.users, { eager: false })
   @JoinTable({
     name: 'tb_user_role',
     joinColumn: {

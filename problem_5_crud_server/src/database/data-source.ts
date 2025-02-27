@@ -10,7 +10,7 @@ const AppDataSource = new DataSource({
   port: +POSTGRES_PORT,
   database: POSTGRES_DB,
   synchronize: true,
-  logging: false,
+  logging: true,
   entities: ['src/entities/*.entity{.ts,.js}'],
   migrations: ['src/migrations/*{.ts,.js}'],
   subscribers: ['src/subscriber/*.subscriber{.ts,.js}'],
