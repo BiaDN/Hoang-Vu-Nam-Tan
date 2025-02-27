@@ -51,6 +51,10 @@ export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: 
   }
 };
 
+/**
+ * @description AdminMiddleware: purpose is to authorize api for only admin to access
+ * @param selfAccess: if true it will only allow the user to see its own things, if false then only the admin has the right to call
+ */
 export const AdminMiddleware =
   (selfAccess = false) =>
   async (req: RequestWithUser, res: Response, next: NextFunction) => {
@@ -74,32 +78,19 @@ export const AdminMiddleware =
           },
         });
 
-        if (findUser) {
-          const roles = findUser.roles;
-
-          console.log({ selfAccess, roles });
-
-          if (selfAccess) {
-            const { id } = req.params;
-            if (Number(id) === findUser.id) {
-              next();
-            } else {
-              if (roles.some(role => role.roleName === RoleType.ADMIN || role.roleName === RoleType.MODERATOR)) {
-                next();
-              } else {
-                next(new HttpException(StatusCodes.FORBIDDEN, 'Only authenticated admin can access this endpoint'));
-              }
-            }
-          } else {
-            if (roles.some(role => role.roleName === RoleType.ADMIN || role.roleName === RoleType.MODERATOR)) {
-              next();
-            } else {
-              next(new HttpException(StatusCodes.FORBIDDEN, 'Only authenticated admin can access this endpoint'));
-            }
-          }
-        } else {
-          next(new HttpException(StatusCodes.UNAUTHORIZED, 'Wrong authentication token'));
+        if (!findUser) {
+          return next(new HttpException(StatusCodes.UNAUTHORIZED, 'Wrong authentication token'));
         }
+
+        const { id: userId } = req.params;
+        const roles = findUser.roles;
+        const hasAdminAccess = roles.some(role => role.roleName === RoleType.ADMIN || role.roleName === RoleType.MODERATOR);
+
+        if (selfAccess && Number(userId) === findUser.id) {
+          return next();
+        }
+
+        return hasAdminAccess ? next() : next(new HttpException(StatusCodes.FORBIDDEN, 'Only authenticated admin can access this endpoint'));
       } else {
         next(new HttpException(StatusCodes.NOT_FOUND, 'Authentication token missing'));
       }

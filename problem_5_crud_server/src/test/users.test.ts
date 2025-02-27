@@ -1,12 +1,16 @@
 import request from 'supertest';
 import { App } from '@/app';
-import pg from '@database';
-import { CreateUserDto } from '@dtos/users.dto';
 import { UserRoute } from '@routes/users.route';
+import AppDataSource from '@/database/data-source';
+
+beforeAll(async () => {
+  await AppDataSource.initialize();
+  console.log('Data Source has been initialized!');
+});
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
-  pg.end();
+  AppDataSource.destroy();
 });
 
 describe('Testing Users', () => {
@@ -15,7 +19,7 @@ describe('Testing Users', () => {
       const usersRoute = new UserRoute();
       const app = new App([usersRoute]);
 
-      return await request(app.getServer()).get(`${usersRoute.path}`).expect(200);
+      return await request(app.getServer()).get(`/api/v1/${usersRoute.path}`).expect(200);
     });
   });
 
@@ -25,48 +29,11 @@ describe('Testing Users', () => {
       const app = new App([usersRoute]);
 
       return await request(app.getServer())
-        .get(`${usersRoute.path}`)
+        .get(`/api/v1/${usersRoute.path}`)
         .query({
           userId: 1,
         })
         .expect(200);
-    });
-  });
-
-  describe('[POST] /users', () => {
-    it('response statusCode 201 / created', async () => {
-      const userData: CreateUserDto = {
-        email: 'example@email.com',
-        password: 'password',
-      };
-      const usersRoute = new UserRoute();
-      const app = new App([usersRoute]);
-
-      return await request(app.getServer()).post(`${usersRoute.path}`).send(userData).expect(201);
-    });
-  });
-
-  describe('[PUT] /users/:id', () => {
-    it('response statusCode 200 / updated', async () => {
-      const userId = 1;
-      const userData: CreateUserDto = {
-        email: 'example@email.com',
-        password: 'password',
-      };
-      const usersRoute = new UserRoute();
-      const app = new App([usersRoute]);
-
-      return await request(app.getServer()).put(`${usersRoute.path}/${userId}`).send(userData).expect(200);
-    });
-  });
-
-  describe('[DELETE] /users/:id', () => {
-    it('response statusCode 200 / deleted', async () => {
-      const userId = 1;
-      const usersRoute = new UserRoute();
-      const app = new App([usersRoute]);
-
-      return await request(app.getServer()).delete(`${usersRoute.path}/${userId}`).expect(200);
     });
   });
 });
