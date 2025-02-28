@@ -100,4 +100,4 @@ A detailed execution flow diagram is provided in the file `scoreboard_flow_full.
 - **Modular Architecture**: Consider splitting the API into microservices (e.g., separate services for score processing, notifications, analytics) to improve maintainability and scalability.
 
 ## Architecture
-[![Architecture Diagram](scoreboard_flow_full_image.html)][1]
+[![Architecture Diagram](https://biadn.github.io/scoreboard_flow_full/)][1]
