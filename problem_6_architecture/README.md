@@ -89,6 +89,10 @@ This document specifies the API module responsible for managing and updating the
 ## 3. Execution Flow Diagram
 A detailed execution flow diagram is provided in the file `scoreboard_flow_full.drawio`. This diagram illustrates both the validation (error branch) and the comprehensive business logic (success branch) steps described above.
 
+You can see the diagram by clicking this link or scrolling down to the bottom of the README.md
+
+[Architecture Diagram](https://biadn.github.io/scoreboard_flow_full/)
+
 ## 4. Performance & Scalability Considerations
 - **Real-time Updates**: Implement WebSocket or similar push mechanisms to ensure users see live updates.
 - **Caching**: Utilize caching solutions (e.g., Redis) to optimize frequent queries for the leaderboard.
@@ -100,4 +104,4 @@ A detailed execution flow diagram is provided in the file `scoreboard_flow_full.
 - **Modular Architecture**: Consider splitting the API into microservices (e.g., separate services for score processing, notifications, analytics) to improve maintainability and scalability.
 
 ## Architecture
-[Architecture Diagram](https://biadn.github.io/scoreboard_flow_full/)
+[![Architecture Diagram](./diagram.jpg)][1]
