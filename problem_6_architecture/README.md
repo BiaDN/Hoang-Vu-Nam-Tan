@@ -98,3 +98,6 @@ A detailed execution flow diagram is provided in the file `scoreboard_flow_full.
 - **Extended Business Logic**: Continuously refine business rules (e.g., bonus calculations, achievements) based on user feedback and analytics.
 - **Monitoring & Alerts**: Set up real-time monitoring for the API to detect anomalies or potential security threats.
 - **Modular Architecture**: Consider splitting the API into microservices (e.g., separate services for score processing, notifications, analytics) to improve maintainability and scalability.
+
+## Architecture
+[![Architecture Diagram](scoreboard_flow_full_image.html)][1]
