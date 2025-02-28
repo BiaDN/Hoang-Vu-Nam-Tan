@@ -1,0 +1,311 @@
+schemes:
+  - https
+  - http
+
+tags:
+  - name: auth
+    description: "Authentication API"
+  - name: users
+    description: "Users API"
+
+paths:
+  # [GET] Find All Users
+  /users:
+    get:
+      tags:
+        - users
+      summary: "Find All Users"
+      parameters:
+        - name: limit
+          in: query
+          description: "Number of users to return"
+          required: false
+          type: integer
+        - name: page
+          in: query
+          description: "Page number"
+          required: false
+          type: integer
+        - name: roleId
+          in: query
+          description: "Filter by role IDs"
+          required: false
+          type: string
+        - name: email
+          in: query
+          description: "Filter by email"
+          required: false
+          type: string
+        - name: createStartDate
+          in: query
+          description: "Filter users created after this date (YYYYMMDD)"
+          required: false
+          type: string
+        - name: createEndDate
+          in: query
+          description: "Filter users created before this date (YYYYMMDD)"
+          required: false
+          type: string
+        - name: userName
+          in: query
+          description: "Filter by username"
+          required: false
+          type: string
+        - name: sortBy
+          in: query
+          description: "Sorting criteria (e.g., createdAt DESC, scores DESC)"
+          required: false
+          type: string
+      responses:
+        200:
+          description: "OK"
+        500:
+          description: "Server Error"
+
+    post:
+      tags:
+        - users
+      summary: "Add User"
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/userRegistration"
+      responses:
+        201:
+          description: "Created"
+        400:
+          description: "Bad Request"
+        409:
+          description: "Conflict"
+        500:
+          description: "Server Error"
+
+  # [GET] Find User By ID
+  /users/{id}:
+    get:
+      tags:
+        - users
+      summary: "Find User By Id"
+      parameters:
+        - name: id
+          in: path
+          description: "User Id"
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "OK"
+        409:
+          description: "Conflict"
+        500:
+          description: "Server Error"
+
+    post:
+      tags:
+        - users
+      summary: "Update User By Id"
+      consumes:
+        - multipart/form-data
+      requestBody:
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                $ref: "#/definitions/userUpdateFormData"
+      parameters:
+        - name: id
+          in: path
+          description: "User Id"
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Bad Request"
+        409:
+          description: "Conflict"
+        500:
+          description: "Server Error"
+
+    delete:
+      tags:
+        - users
+      summary: "Delete User By Id"
+      description: Only admin can do it
+      parameters:
+        - name: id
+          in: path
+          description: "User Id"
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "OK"
+        409:
+          description: "Conflict"
+        500:
+          description: "Server Error"
+  /users/delete/{id}:
+    post:
+      tags:
+        - users
+      summary: "Soft Delete User By Id"
+      description: Only admin can do it
+      parameters:
+        - name: id
+          in: path
+          description: "User Id"
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "OK"
+        409:
+          description: "Conflict"
+        500:
+          description: "Server Error"
+
+  # Authentication APIs
+  /login:
+    post:
+      tags:
+        - auth
+      summary: "User Login"
+      description: "Authenticate user and return a token"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/authLogin"
+      responses:
+        200:
+          description: "Login successful"
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: "JWT authentication token"
+        400:
+          description: "Invalid email or password"
+
+  /logout:
+    post:
+      tags:
+        - auth
+      summary: "User Logout"
+      description: "Logout account"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: "Logout successful"
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: "JWT authentication token"
+        400:
+          description: "Somthing wrong"
+
+  /signUp:
+    post:
+      tags:
+        - auth
+      summary: "User Registration"
+      description: "Register a new user"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/userRegistration"
+      responses:
+        201:
+          description: "User registered successfully"
+        400:
+          description: "Invalid request data"
+
+# Definitions
+definitions:
+  authLogin:
+    type: object
+    required: true
+    properties:
+      email:
+        type: string
+        format: email
+        description: "User email"
+      password:
+        type: string
+        format: password
+        description: "User password"
+  userRegistration:
+    type: object
+    properties:
+      email:
+        type: string
+        format: email
+        description: "User email"
+      password:
+        type: string
+        format: password
+        description: "User password"
+      confirmPassword:
+        type: string
+        format: password
+        description: "Must match the password"
+      userName:
+        type: string
+        description: "Username of the user"
+      phoneNumber:
+        type: string
+        description: "User's phone number"
+
+  userUpdateFormData:
+    type: object
+    description: swagger doesn't support sending array type params so rolesId won't be flexible
+    properties:
+      password:
+        type: string
+        description: "User password (form-data)"
+      userName:
+        type: string
+        description: "Username of the user (form-data)"
+      phoneNumber:
+        type: string
+        description: "User's phone number (form-data)"
+      file:
+        type: file
+        description: "File image (form-data)"
+      roleIds[0]:
+        type: integer
+        description: "First role ID"
+      roleIds[1]:
+        type: integer
+        description: "Second role ID"
+
+  users:
+    type: object
+    properties:
+      email:
+        type: string
+        description: "User Email"
+      password:
+        type: string
+        description: "User Password"
