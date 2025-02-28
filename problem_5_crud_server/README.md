@@ -17,6 +17,10 @@ Before running this project, ensure you have the following installed:
 
 Follow these steps to set up and run the project:
 
+### Before run source
+
+Create database name same as POSTGRES_DB variable in env
+
 ### 1️⃣ Install Dependencies
 
 Run the following command to install all necessary dependencies:
