@@ -104,4 +104,4 @@ You can see the diagram by clicking this link or scrolling down to the bottom of
 - **Modular Architecture**: Consider splitting the API into microservices (e.g., separate services for score processing, notifications, analytics) to improve maintainability and scalability.
 
 ## Architecture
-[![Architecture Diagram](./diagram.jpg)][1]
+[![Architecture Diagram](./diagram.jpg)]
